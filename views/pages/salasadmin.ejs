@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reserva de Boletos</title>
+
+    <%- include('../includes/head') %>
+        <style>
+            #nuevoUsuarioForm {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: white;
+                padding: 20px;
+                z-index: 1000;
+                width: 80%;
+                max-width: 400px;
+                height: auto;
+                max-height: 600px;
+                overflow: auto;
+                border: 2px solid #ccc;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            #cerrarPopupBtn {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                cursor: pointer;
+            }
+
+            .scrollable-form {
+                max-height: 600px;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            /* Estilos generales del formulario */
+            form {
+                padding: 15px;
+            }
+
+            /* Estilos para el nuevo popup de impresión */
+            #popupImpresion {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: white;
+                padding: 20px;
+                z-index: 1000;
+                width: 80%;
+                max-width: 400px;
+                height: auto;
+                max-height: 600px;
+                overflow: auto;
+                border: 2px solid #ccc;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            /* Estilos para el ticket de cine */
+            .ticket {
+                font-family: Arial, sans-serif;
+                width: 300px;
+                padding: 20px;
+                border: 2px solid #000;
+                border-radius: 10px;
+                margin: 20px auto;
+                background-color: #f7f7f7;
+                box-shadow: 0 4px 8px rgba(247, 2, 2, 0.1);
+            }
+
+            .ticket h2 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            .ticket p {
+                margin: 10px 0;
+            }
+
+            .ticket .movie-info {
+                border-top: 1px solid #ddd;
+                padding-top: 10px;
+            }
+
+            .ticket .footer {
+                margin-top: 20px;
+                text-align: center;
+            }
+
+            .ticket img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+                margin: 0 auto;
+            }
+        </style>
+</head>
+
+<body>
+    <!-- Encabezado -->
+    <header class="header">
+        <input class="menu-btn" type="checkbox" id="menu-btn" />
+        <label class="menu-icon" for="menu-btn"><span class="navicon"></span></label>
+        <ul class="menu">
+            <li>
+                <a class="menu-item" href="/Crud-Completo-con-NodeJS-Express-y-MySQL">Inicio</a>
+            </li>
+            <li>
+                <a class="menu-item" href="/salas">Salas</a>
+            </li>
+            <li>
+                <a class="menu-item" href="/Crud-usuarios">Lista Usuarios</a>
+            </li>
+            <li>
+                <a href="/lista-Peliculas">Peliculas</a>
+            </li>
+        </ul>
+        <ul>
+            <li class="menu-item-right">
+                <a class="menu-item" href="/">Cerrar sesión</a>
+            </li>
+        </ul>
+    </header>
+
+    <div id="nuevoUsuarioForm" class="col-md-5 py-3 custom_table mx-auto">
+        <form id="formNuevoUsuario" action="/tickets/create" method="POST">
+            <h2 class="text-center title">Reservar Boletos</h2>
+            <div class="mb-3">
+                <label for="nombrePelicula" class="form-label">Película</label>
+                <input type="text" id="nombrePelicula" class="form-control" name="nombrePelicula" readonly>
+                <!-- Agrega un campo oculto para enviar el ID de la película -->
+                <input type="hidden" id="idPelicula" name="idpelicula">
+            </div>
+            <div class="mb-3">
+                <label for="nombrecliente" class="form-label">Cliente</label>
+                <input type="text" id="nombrecliente" class="form-control" name="nombrecliente" required>
+            </div>
+            <div class="mb-3">
+                <label for="numasiento" class="form-label">Número de Asientos</label>
+                <input type="number" id="numasiento" class="form-control" name="numasiento" required>
+            </div>
+            <div class="mb-3">
+                <label for="fechacompra" class="form-label">Fecha de Compra</label>
+                <input type="datetime-local" id="fechacompra" class="form-control" name="fechacompra" required>
+            </div>
+            <div class="mb-3">
+                <label for="folio" class="form-label">Folio</label>
+                <input type="text" id="folio" class="form-control" name="folio" required>
+            </div>
+            <div class="mb-3">
+                <label for="total" class="form-label">Total</label>
+                <input type="text" id="total" class="form-control" name="total" required>
+            </div>
+            <div class="row">
+                <div class="d-grid gap-2 col-12 mx-auto mt-4 mb-4">
+                    <button class="btn btn-primary" type="submit">Guardar</button>
+                    <!-- Cambio de nombre y función del botón -->
+                    <button class="btn btn-primary" type="button" onclick="visualizarReserva()">Visualizar</button>
+                    <button class="btn btn-danger" type="button" onclick="cerrarPopup()">Cancelar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Nuevo popup para imprimir -->
+    <div id="popupImpresion">
+        <h2>Reserva de Boletos</h2>
+        <ul>
+            <li>Película: <span id="printableNombrePelicula"></span></li>
+            <li>Cliente: <span id="printableNombreCliente"></span></li>
+            <li>Número de Asientos: <span id="printableNumeroAsientos"></span></li>
+            <li>Fecha de Compra: <span id="printableFechaCompra"></span></li>
+            <li>Folio: <span id="printableFolio"></span></li>
+            <li>Total: <span id="printableTotal"></span></li>
+        </ul>
+        <!-- Botón para descargar el PDF -->
+        <a id="descargarPDF" class="btn btn-primary" href="#" onclick="descargarPDF()">Descargar PDF</a>
+        <button class="btn btn-danger" type="button" onclick="cerrarPopupImprimir()">Cancelar</button>
+
+
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container" style="margin-top: 80px !important">
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-12 mt-2 text-center">
+                <h2 class="title">Salas</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8 py-3 custom_table mx-auto">
+        <form id="filterForm" class="mb-3">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="sala" class="form-label">Salas</label>
+                    <select id="sala" name="sala" class="form-select">
+                        <option>Salas</option>
+                        <% salas.forEach(sala=> { %>
+                            <option value="<%= sala.idsala %>">
+                                <%= sala.nombresala %>
+                            </option>
+                            <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="filtroFecha" class="form-label">Filtro de Fecha</label>
+                    <input type="date" id="filtroFecha" name="filtroFecha" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label for="pelicula" class="form-label">Películas</label>
+                    <select id="pelicula" name="pelicula" class="form-select">
+                        <option>Peliculas</option>
+                        <% peliculas.forEach(pelicula=> { %>
+                            <option value="<%= pelicula.id_pelicula %>">
+                                <%= pelicula.nombre_pelicula %>
+                            </option>
+                            <% }); %>
+                    </select>
+                </div>
+            </div>
+        </form>
+        <div class="container">
+            <div class="table-responsive">
+                <table id="tablaPeliculas" class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre</th>
+                            <th class="text-center">Funciones</th>
+                            <th style=" margin-left: -20px; ">Acciones</th>
+                            <!-- Alineado a la derecha con padding extra negativo -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Aquí se deben mostrar las películas -->
+                        <% peliculas.forEach((pelicula, index)=> { %>
+                            <tr class="filaPelicula">
+                                <td><strong>
+                                        <%= index + 1 %>
+                                    </strong></td>
+                                <td>
+                                    <%= pelicula.nombre_pelicula %>
+                                </td>
+                                <td>
+                                    <!-- Mostrar el horario -->
+                                    <select class="form-select">
+                                        <% horarios.forEach(horario=> { %>
+                                            <option value="<%= horario.idhorario %>">
+                                                <%= horario.horarioinicio %>
+                                            </option>
+                                            <% }); %>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span>
+                                        <!-- Botón para abrir el popup de reserva de boletos -->
+                                        <button class="btn btn-primary"
+                                            onclick="togglePopup('<%= pelicula.id_pelicula %>', '<%= pelicula.nombre_pelicula %>')">Reservar</button>
+
+                                    </span>
+                                </td>
+                            </tr>
+                            <% }); %>
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+
+    <script>
+        function visualizarReserva() {
+            const nombrePelicula = document.getElementById('nombrePelicula').value;
+            const nombreCliente = document.getElementById('nombrecliente').value;
+            const numeroAsientos = document.getElementById('numasiento').value;
+            const fechaCompra = document.getElementById('fechacompra').value;
+            const folio = document.getElementById('folio').value;
+            const total = document.getElementById('total').value;
+
+            document.getElementById('printableNombrePelicula').textContent = nombrePelicula;
+            document.getElementById('printableNombreCliente').textContent = nombreCliente;
+            document.getElementById('printableNumeroAsientos').textContent = numeroAsientos;
+            document.getElementById('printableFechaCompra').textContent = fechaCompra;
+            document.getElementById('printableFolio').textContent = folio;
+            document.getElementById('printableTotal').textContent = total;
+
+            openPopupImprimir(); // Abre el popup de impresión
+            cerrarPopup(); // Cierra el popup de reserva de boletos
+        }
+
+        function togglePopup(idPelicula, nombrePelicula) {
+            document.getElementById('nombrePelicula').value = nombrePelicula;
+            document.getElementById('idPelicula').value = idPelicula; // Establece el ID de la película en el campo oculto
+            document.getElementById('nuevoUsuarioForm').style.display = 'block';
+        }
+
+        // Función para abrir el popup de impresión
+        function openPopupImprimir() {
+            document.getElementById('popupImpresion').style.display = 'block';
+        }
+        function cerrarPopupImprimir() {
+            document.getElementById('popupImpresion').style.display = 'none';
+        }
+
+        function cerrarPopup() {
+            document.getElementById('nuevoUsuarioForm').style.display = 'none';
+        }
+
+        function descargarPDF() {
+            // Recopilar los datos del formulario de reserva de boletos
+            const nombrePelicula = document.getElementById('nombrePelicula').value;
+            const nombreCliente = document.getElementById('nombrecliente').value;
+            const numeroAsientos = document.getElementById('numasiento').value;
+            const fechaCompra = document.getElementById('fechacompra').value;
+            const folio = document.getElementById('folio').value;
+            const total = document.getElementById('total').value;
+        
+            // Crear un elemento HTML para contener los datos a imprimir
+            const printableContent = document.createElement('div');
+            printableContent.classList.add('ticket');
+        
+            // Contenido del ticket de cine
+            printableContent.innerHTML = `
+                <h2>Ticket de Cine</h2>
+                <p><strong>Película:</strong> ${nombrePelicula}</p>
+                <p><strong>Cliente:</strong> ${nombreCliente}</p>
+                <p><strong>Número de Asientos:</strong> ${numeroAsientos}</p>
+                <p><strong>Fecha de Compra:</strong> ${fechaCompra}</p>
+                <p><strong>Folio:</strong> ${folio}</p>
+                <p><strong>Total:</strong> ${total}</p>
+                <div class="footer">
+                </div>
+            `;
+        
+            // Crear el PDF usando html2pdf.js y obtener los datos binarios del PDF
+            html2pdf().from(printableContent).outputPdf('datauristring').then(function(pdfDataUri) {
+                // Crear un enlace de descarga
+                const link = document.createElement('a');
+                link.href = pdfDataUri;
+                link.download = 'reserva_boletos.pdf'; // Nombre del archivo PDF
+                // Simular clic en el enlace para descargar el PDF
+                link.click();
+            });
+        }
+        
+
+        // Función para generar un folio aleatorio al cargar la página
+        window.onload = function () {
+            const folioInput = document.getElementById('folio');
+            const folioNumber = Math.floor(Math.random() * 1000000) + 1;
+            folioInput.value = folioNumber;
+        };
+    </script>
+</body>
+
+</html>
