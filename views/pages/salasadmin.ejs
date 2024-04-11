@@ -194,6 +194,8 @@
             <div class="d-grid gap-2 col-12 mx-auto mt-4 mb-4">
                 <button class="btn btn-primary" type="button"
                 onclick="visualizarReserva()">Visualizar</button>
+                <button class="btn btn-primary" type="button"
+                onclick="visualizarboletos()">guardar</button>
                 <button class="btn btn-danger" type="button" onclick="cerrarPopup()">Cancelar</button>
             </div>
         </div>
@@ -254,31 +256,21 @@
         </div>
     </form>
   <!-- Tabla de tickets -->
-<div class="container">
-    <div class="table-responsive">
-        <table id="tablaTickets" class="table custom-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Nombre Cliente</th>
-                    <th>Total</th>
-                    <th>Fecha de Compra</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-              
-                        <td>
-                          
-                            
-                        </td>
-                 
-        </table>
-    </div>
+  <div class="container mt-4">
+    <h2>Registros</h2>
+    <table id="registrosTable" class="table">
+        <thead>
+            <tr>
+                <th scope="col">Nombre del Cliente</th>
+                <th scope="col">Total</th>
+                <th scope="col">Fecha de Compra</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aquí se agregarán dinámicamente las filas de la tabla -->
+        </tbody>
+    </table>
 </div>
-
-
-       
 
 
         <!-- Popup de impresión -->
@@ -360,6 +352,30 @@
                 openPopupImprimir(); // Abre el popup de impresión
                 cerrarPopup(); // Cierra el popup de reserva de boletos
             }
+            function visualizarboletos() {
+                const nombreCliente = document.getElementById('nombrecliente').value;
+    const total = document.getElementById('total').value;
+    const fechaCompra = document.getElementById('fechacompra').value;
+
+    // Crear una nueva fila en la tabla de registros
+    const tableBody = document.querySelector('#registrosTable tbody');
+    const newRow = tableBody.insertRow();
+
+    // Insertar celdas con los datos capturados
+    const cellNombreCliente = newRow.insertCell();
+    const cellTotal = newRow.insertCell();
+    const cellFechaCompra = newRow.insertCell();
+
+    cellNombreCliente.textContent = nombreCliente;
+    cellTotal.textContent = total;
+    cellFechaCompra.textContent = fechaCompra;
+
+
+    // Limpiar los campos del formulario después de agregar la fila
+    document.getElementById('nombrecliente').value = '';
+    document.getElementById('total').value = '';
+    document.getElementById('fechacompra').value = ''; }
+            
 
             // Función para abrir el popup de reserva de boletos
             function togglePopup() {
@@ -425,7 +441,9 @@
                 const folioNumber = Math.floor(Math.random() * 1000000) + 1;
                 folioInput.value = folioNumber;
             };
+            
         </script>
+        
         </body>
 
 </html>
