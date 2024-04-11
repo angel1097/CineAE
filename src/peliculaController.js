@@ -38,6 +38,8 @@ export const visualizarPeliculas = async () => {
   }
 };
 
+
+
 // Función para actualizar una película existente por su ID
 export const actualizarPelicula = async (id, { nombre_pelicula, sinopsis, duracion, genero, estado, imagen, precio }) => {
   try {

@@ -48,18 +48,14 @@ router.get("/Crud-usuarios", async (req, res) => {
 // Registrar un nuevo usuario
 router.post("/usuarios", async (req, res) => {
   const { nombre_usuario, contrasena_encriptada, tipo_usuario, estado } = req.body;
-
   try {
     await agregarUsuario({ nombre_usuario, contrasena_encriptada, tipo_usuario, estado });
-    res.redirect("/");
+    res.redirect("/Crud-usuarios");
   } catch (error) {
-    const { status, message } = error;
-    res.status(status || 500).json({ error: message });
+    const { status = 500, message } = error;
+    res.status(status).json({ error: message });
   }
 });
-
-
-
 // Detalles del usuario
 router.get("/detalles/:id", async (req, res) => {
   const usuarioId = req.params.id;
@@ -100,7 +96,7 @@ router.post("/actualizar-usuario/:id", async (req, res) => {
       estado,
     });
 
-    res.redirect("/Crud-Completo-con-NodeJS-Express-y-MySQL");
+    res.redirect("/Crud-usuarios");
   } catch (error) {
     const { status, message } = error;
     res.status(status || 500).json({ error: message });
@@ -112,7 +108,7 @@ router.post("/borrar-usuario/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await eliminarUsuario(id);
-    res.redirect("/Crud-Completo-con-NodeJS-Express-y-MySQL");
+    res.redirect("/Crud-usuarios");
   } catch (error) {
     const { status, message } = error;
     res.status(status || 500).json({ error: message });
@@ -175,16 +171,7 @@ router.post('/peliculasnueva', async (req, res) => {
 
 
 
-router.get("/Crud-Completo-con-NodeJS-Express-y-MySQL", async (req, res) => {
-  try {
-    const { Tipo, estadoUsuario, busquedaUsuario } = req.query;
-    const usuarios = await obtenerUsuariosFiltrados({ tipo: Tipo, estado: estadoUsuario, busqueda: busquedaUsuario });
-    res.render("pages/lis_usuarios", { usuarios });
-  } catch (error) {
-    const { status, message } = error;
-    res.status(status || 500).json({ error: message });
-  }
-});
+
 
 
 // Ruta para procesar el formulario de inicio de sesión
@@ -304,7 +291,7 @@ router.get("/salas", async (req, res) => {
 
     // Obtener la lista de películas para el dropdownlist
     const peliculas = await listarPeliculas();
-
+    
     res.render("pages/salasadmin", { salas, horarios, peliculas }); // Pasa las salas, horarios y películas a la vista
   } catch (error) {
     const { status, message } = error;
@@ -372,6 +359,7 @@ router.get("/lista-salas/:nombresala", async (req, res) => {
 
 // Ruta para obtener los ticket  
 import ticketRouter from "./ticketRouter.js"; // Importa el enrutador de tickets
+import { getAllTickets } from "./ticketController.js";
 
 router.use("/tickets", ticketRouter);
 

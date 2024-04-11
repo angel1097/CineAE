@@ -128,30 +128,31 @@
             <!-- Buscador -->
             <div class="input-group mb-2">
                 <input type="text" id="busquedaUsuario" name="busquedaUsuario" class="form-control"
-                    placeholder="Ingrese nombre de usuario">
-                <button type="button" onclick="filtrarUsuarios()" class="btn btn-outline-secondary">🔎</button>
+                    placeholder="Ingrese nombre de usuario" oninput="filtrarUsuarios()">
+                <!-- Eliminamos el botón de búsqueda -->
             </div>
-
+            
             <!-- Filtros -->
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="tipoUsuario" class="form-label">Tipo de Usuario</label>
-                    <select id="tipoUsuario" name="tipoUsuario" class="form-select">
+                    <select id="tipoUsuario" name="tipoUsuario" class="form-select" onchange="filtrarUsuarios()">
                         <option value="">Tipo</option>
                         <option value="super admin">Super Admin</option>
                         <option value="taquillero">Taquillero</option>
                     </select>
                 </div>
-
+            
                 <div class="col-md-6">
                     <label for="estadoUsuario" class="form-label">Estado de Usuario</label>
-                    <select id="estadoUsuario" name="estadoUsuario" class="form-select">
+                    <select id="estadoUsuario" name="estadoUsuario" class="form-select" onchange="filtrarUsuarios()">
                         <option value="">Estado</option>
                         <option value="activo">Activo</option>
                         <option value="inactivo">Inactivo</option>
                     </select>
                 </div>
             </div>
+            
         </form>
         <div class="container">
             <!-- Tabla de Usuarios -->
@@ -397,28 +398,9 @@
             var regex = /^[A-Za-z]+$/;
     
             // Validar que se haya ingresado un nombre de usuario
-            if (busquedaUsuario === '') {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Ingrese un usuario',
-                    text: 'Por favor, ingrese el nombre de usuario que desea buscar.'
-                });
-                return;
-            }
+           
     
-            if (!regex.test(busquedaUsuario)) {
-                // Mostrar SweetAlert para el mensaje de error
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Ingrese solo letras en el campo de búsqueda.'
-                });
-    
-                // Limpiar el campo de búsqueda
-                busquedaUsuarioInput.value = '';
-    
-                return;
-            }
+        
     
             var tabla = document.getElementById('tablaUsuarios');
             var filas = tabla.getElementsByTagName('tr');

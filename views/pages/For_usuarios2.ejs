@@ -153,14 +153,14 @@
     <div class="col-md-8 py-3 m-5 custom_table mx-auto">
         <form id="filterForm" class="mb-3">
             <div class="input-group mb-2">
-                <input type="text" class="form-control" placeholder="Buscar Película" id="busquedaPelicula">
-                <button class="btn btn-outline-secondary" type="button" onclick="buscarPelicula()">🔎</button>
+                <input type="text" class="form-control" placeholder="Buscar Película" id="busquedaPelicula" oninput="buscarPelicula()">
+                <!-- Eliminamos el botón de búsqueda -->
             </div>
-
+    
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="tipoPelicula">Tipo de Película</label>
-                    <select class="form-select" id="tipoPelicula">
+                    <select class="form-select" id="tipoPelicula" onchange="buscarPelicula()">
                         <option value="">Tipo</option>
                         <option value="Acción">Acción</option>
                         <option value="Comedia">Comedia</option>
@@ -170,7 +170,7 @@
                 </div>
                 <div class="col-md-6">
                     <label for="estadoPelicula">Estado de Película</label>
-                    <select class="form-select" id="estadoPelicula">
+                    <select class="form-select" id="estadoPelicula" onchange="buscarPelicula()">
                         <option value="">Estado</option>
                         <option value="Activa">Activa</option>
                         <option value="Inactiva">Inactiva</option>
@@ -179,6 +179,8 @@
                 </div>
             </div>
         </form>
+    
+    
 
         <!-- Tabla de Películas -->
         <div class="container">
@@ -266,23 +268,28 @@
             const input = document.getElementById('busquedaPelicula').value;
             const tipoPelicula = document.getElementById('tipoPelicula').value;
             const estadoPelicula = document.getElementById('estadoPelicula').value;
-
+        
             // Lógica para filtrar películas según los criterios de búsqueda
             const peliculasFiltradas = peliculas.filter(pelicula => {
                 return pelicula.nombre_pelicula.toLowerCase().includes(input.toLowerCase()) &&
                     (tipoPelicula === '' || pelicula.genero === tipoPelicula) &&
                     (estadoPelicula === '' || pelicula.estado === estadoPelicula);
             });
-
-            if (peliculasFiltradas.length > 0) {
-                // Muestra las películas filtradas
+        
+            if (input === '' && tipoPelicula === '' && estadoPelicula === '') {
+                // No se han aplicado filtros, no mostramos alerta
                 mostrarPeliculasFiltradas(peliculasFiltradas);
             } else {
-                // Muestra un mensaje de alerta si no se encuentran películas
-                mostrarAlertaNoEncontrado();
+                if (peliculasFiltradas.length > 0) {
+                    // Muestra las películas filtradas
+                    mostrarPeliculasFiltradas(peliculasFiltradas);
+                } else {
+                    // Muestra un mensaje de alerta si no se encuentran películas
+                    mostrarAlertaNoEncontrado();
+                }
             }
         }
-
+        
         // Función para mostrar las películas filtradas en la tabla
         function mostrarPeliculasFiltradas(peliculasFiltradas) {
             const tablaPeliculas = document.getElementById('tablaPeliculas').getElementsByTagName('tbody')[0];
@@ -292,7 +299,7 @@
                 const fila = `
                     <tr class="filaPelicula">
                         <td><strong>${index + 1}</strong></td>
-                        <td><img src="${pelicula.imagen}" style="max-width: 100px; height: auto;"></td>
+                        
                         <td>${pelicula.nombre_pelicula}</td>
                         <td>${pelicula.sinopsis.substring(0, 20)}...</td>
                         <td>

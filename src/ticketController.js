@@ -28,3 +28,6 @@ export const getAllTickets = (req, res) => {
 };
 
 export default { createTicket, getAllTickets };
+
+
+

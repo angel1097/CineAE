@@ -48,22 +48,27 @@ const obtenerUsuarioPorNombre = async (nombre_usuario) => {
 };
 
 // Agregar un nuevo usuario
-export const agregarUsuario = async ({
-  nombre_usuario,
-  contrasena_encriptada,
-  tipo_usuario,
-  estado,
-}) => {
+export const agregarUsuario = async ({ nombre_usuario, contrasena_encriptada, tipo_usuario, estado }) => {
   try {
+    // Primero, verificamos si el nombre de usuario ya existe
+    const [existingUsers] = await pool.query(
+      "SELECT COUNT(*) as count FROM usuarios WHERE nombre_usuario = ?",
+      [nombre_usuario]
+    );
+
+    if (existingUsers[0].count > 0) {
+      throw { status: 400, message: "El nombre de usuario ya está en uso" };
+    }
+
+    // Si no existe, procedemos a insertar el nuevo usuario
     await pool.query(
       "INSERT INTO usuarios (nombre_usuario, contrasena_encriptada, tipo_usuario, estado, created_at) VALUES (?, ?, ?, ?, ?)",
       [nombre_usuario, contrasena_encriptada, tipo_usuario, estado, new Date()]
     );
   } catch (error) {
-    throw { status: 500, message: "Error al crear el usuario" };
+    throw error;
   }
 };
-
 // Obtener todos los usuarios
 export const listarUsuarios = async () => {
   try {

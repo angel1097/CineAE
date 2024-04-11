@@ -14,3 +14,9 @@ router.get('/all', ticketController.getAllTickets);
 
 
 export default router;
+
+
+
+
+
+
